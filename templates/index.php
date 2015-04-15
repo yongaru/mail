@@ -1,3 +1,20 @@
+<?php
+script('mail','handlebars-v1.3.0');
+script('mail','jquery.autosize');
+script('mail','backbone');
+script('mail','backbone.marionette');
+script('mail','backbone.localStorage');
+script('mail','models/attachment');
+script('mail','views/attachment');
+script('mail','views/sendmail');
+script('mail','views/message');
+script('mail','views/folder');
+script('mail','mail');
+script('mail','send-mail');
+script('mail','settings');
+style('mail','mail');
+style('mail','mobile');
+?>
 <script id="mail-folder-template" type="text/x-handlebars-template">
 	<li data-folder_id="{{id}}" data-no_select="{{noSelect}}"
 		class="
