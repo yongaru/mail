@@ -169,7 +169,7 @@ views.Messages = Backbone.Marionette.CompositeView.extend({
 	},
 
 	changeFlags: function(model) {
-		var unseen = model.get('flags').get('unseen');
+		var unseen = model.get('flags').get('unseen') || model.get('flags').unseen;
 		var prevUnseen = model._previousAttributes.flags.get('unseen');
 		if (unseen === prevUnseen) {
 			this.trigger('change:unseen', model, unseen);
@@ -239,64 +239,6 @@ views.Messages = Backbone.Marionette.CompositeView.extend({
 		if (reload){
 			from = 0;
 		}
-		// Add loading feedback
-//		$('#load-new-mail-messages').show();
-//		$('#load-more-mail-messages').hide();
-		$('#load-more-mail-messages')
-			.addClass('icon-loading-small')
-			.val(t('mail', 'Loading …'))
-			.prop('disabled', true);
-
-		var url = OC.generateUrl(
-			'apps/mail/accounts/{accountId}/folders/{folderId}/messages?from={from}&to={to}',
-			{
-				'accountId': Mail.State.currentAccountId,
-				'folderId':Mail.State.currentFolderId,
-				'from': from,
-				'to': from + 20
-			});
-		if (this.filterCriteria) {
-			url = OC.generateUrl(
-				'apps/mail/accounts/{accountId}/folders/{folderId}/messages?filter={query}&from={from}&to={to}',
-				{
-					'accountId': Mail.State.currentAccountId,
-					'folderId':Mail.State.currentFolderId,
-					'query': this.filterCriteria.text,
-					'from': from,
-					'to': from + 20
-				});
-		}
-		var self = this;
-		$.ajax(url, {
-				data: {},
-				type:'GET',
-				success: function (jsondata) {
-					if (reload){
-						self.collection.reset();
-					}
-					// Add messages
-					self.collection.add(jsondata);
-
-					$('#app-content').removeClass('icon-loading');
-
-					Mail.UI.setMessageActive(Mail.State.currentMessageId);
-				},
-				error: function() {
-					Mail.UI.showError(t('mail', 'Error while loading messages.'));
-					// Set the old folder as being active
-					Mail.UI.setFolderActive(Mail.State.currentAccountId, Mail.State.currentFolderId);
-				},
-				complete: function() {
-					// Remove loading feedback again
-					$('#load-more-mail-messages')
-						.removeClass('icon-loading-small')
-						.val(t('mail', 'Load more …'))
-						.prop('disabled', false);
-					$('#load-new-mail-messages')
-						.removeClass('icon-loading-small')
-						.val(t('mail', 'Check mail'))
-						.prop('disabled', false);
-				}
-			});
+		this.collection.fetch({from: from});
 	}
 });

@@ -1,4 +1,4 @@
-/* global Backbone */
+/* global Backbone, Mail */
 var models = {};
 
 models.Attachment = Backbone.Model.extend({
@@ -54,7 +54,29 @@ models.Message = Backbone.Model.extend({
 });
 
 models.MessageList = Backbone.Collection.extend({
-	model: models.Message
+	model: models.Message,
+
+	from: 0,
+
+	fetch: function(options) {
+		this.from = options.from;
+		return Backbone.Collection.prototype.fetch.call(this, options);
+	},
+
+	url: function() {
+		return OC.generateUrl(
+			'apps/mail/accounts/{accountId}/folders/{folderId}/messages?from={from}&to={to}',
+			{
+				'accountId': Mail.State.currentAccountId,
+				'folderId': Mail.State.currentFolderId,
+				'from': this.from,
+				'to': this.from + 20
+			});
+	},
+
+	parse: function(data) {
+		return data;
+	}
 });
 
 models.Folder = Backbone.Model.extend({
