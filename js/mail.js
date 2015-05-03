@@ -784,6 +784,10 @@ $(document).ready(function () {
 
 		Mail.State.composeView.attachments.reset();
 		Mail.State.composeView.render();
+		$('#fileupload').fileupload({
+			'singleFileUploads': false,
+			'autoUpload': false
+		});
 
 		// focus 'to' field automatically on clicking New message button
 		$('#to').focus();
@@ -813,6 +817,11 @@ $(document).ready(function () {
 
 	$(document).on('show', function() {
 		Mail.UI.changeFavicon(OC.filePath('mail', 'img', 'favicon.png'));
+	});
+
+	$(document).on('click', '#mail_new_attachment_local', function () {
+		$('#fileupload').trigger('click');
+		return false;
 	});
 
 });

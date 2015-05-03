@@ -402,6 +402,14 @@ button.control {
 	float: left;
 }
 
+#fileupload {
+	display: none;
+}
+
+#mail_new_attachment_local {
+	display: inline;
+}
+
 .unread {
 	font-weight: bold;
 }
