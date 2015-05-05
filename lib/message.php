@@ -349,7 +349,7 @@ class Message {
 	/**
 	 * @param string $ownMail
 	 */
-	public function getFullMessage($ownMail, $specialRole=null) {
+	public function getFullMessage($ownMail, $specialRole = null) {
 		$mailBody = $this->plainMessage;
 
 		$data = $this->getListArray();
