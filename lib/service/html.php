@@ -14,11 +14,21 @@ namespace OCA\Mail\Service;
 
 use HTMLPurifier_Config;
 use HTMLPurifier_URIFilter;
+use OCA\mail\lib\service\SecurityToken;
 use OCP\Util;
 
 class HTMLPurifier_URIFilter_TransformURLScheme extends HTMLPurifier_URIFilter {
 	public $name = 'TransformURLScheme';
 	public $post = true;
+	/** @var SecurityToken */
+	public $securityToken;
+
+	/**
+	 * @param SecurityToken $securityToken
+	 */
+	public function __construct(SecurityToken $securityToken) {
+		$this->securityToken = $securityToken;
+	}
 
 	/**
 	 * Transformator which will rewrite all HTTPS and HTTP urls to
@@ -56,13 +66,14 @@ class HTMLPurifier_URIFilter_TransformURLScheme extends HTMLPurifier_URIFilter {
 				'src='.$originalURL,
 				null);
 		} else {
+			$path = \OC::$server->getURLGenerator()->linkToRoute('mail.proxy.proxy', ['src' => $originalURL]);
 			$uri = new \HTMLPurifier_URI(
 				Util::getServerProtocol(),
 				null,
 				Util::getServerHost(),
 				null,
-				\OC::$server->getURLGenerator()->linkToRoute( 'mail.proxy.proxy' ),
-				'src='.$originalURL.'&requesttoken='.\OC::$server->getSession()->get('requesttoken'),
+				$path,
+				'token='.urlencode($this->securityToken->calculateToken($path)),
 				null);
 		}
 
@@ -72,7 +83,11 @@ class HTMLPurifier_URIFilter_TransformURLScheme extends HTMLPurifier_URIFilter {
 
 class Html {
 
-	public function __construct() {
+	/**
+	 * @param SecurityToken $securityToken
+	 * @throws \HTMLPurifier_Exception
+	 */
+	public function __construct($securityToken) {
 		$config = HTMLPurifier_Config::createDefault();
 
 		// Append target="_blank" to all link (a) elements
@@ -85,7 +100,7 @@ class Html {
 		// Rewrite URL for redirection and proxying of content
 		$uri = $config->getDefinition('URI');
 
-		$uri->addFilter(new HTMLPurifier_URIFilter_TransformURLScheme(), $config);
+		$uri->addFilter(new HTMLPurifier_URIFilter_TransformURLScheme($securityToken), $config);
 
 		$this->purifier = new \HTMLPurifier($config);
 	}
